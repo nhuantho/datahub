@@ -6,6 +6,18 @@
 : ${CDC_USER:=datahub_cdc}
 : ${CDC_PASSWORD:=datahub_cdc}
 
+# Verify connection
+if mariadb -u $MYSQL_USERNAME -p"$MYSQL_PASSWORD" -h $MYSQL_HOST -P $MYSQL_PORT $MYSQL_ARGS -e "SELECT 1;"> /dev/null 2>&1; then
+  echo "Connected to database '$DB_NAME' successful."
+else
+  echo ""
+fi
+
+# Create a database
+if [ "$DATAHUB_CREATE_DB" = true ]; then
+    mariadb -u $MYSQL_USERNAME -p"$MYSQL_PASSWORD" -h $MYSQL_HOST -P $MYSQL_PORT $MYSQL_ARGS -e "CREATE DATABASE IF NOT EXISTS `${DATAHUB_CREATE_DB}` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;"
+fi
+
 # Process main init script
 sed -e "s/DATAHUB_DB_NAME/${DATAHUB_DB_NAME}/g" /init.sql | tee -a /tmp/init-final.sql
 
